@@ -6,21 +6,37 @@
 
 using namespace std;
 
-static int num_images, 				// B
-		   num_input_channels, 		// C
-		   num_output_channels, 	// K
-		   image_width, 			// W
-		   image_height, 			// H
-		   filter_width,			// R
-		   filter_height,			// S
-		   horizontal_stride,		// sigma_w
-		   vertical_stride,			// sigma_h
-		   cache_size,				// M
-
-void find_optimal_parameters()
+//
+// global data structure
+//
+typedef struct 
 {
+  int B;
+  int W;
+  int H;
+  int K;
+  int C;
+  int R;
+  int S;
+  int sigH;
+  int sigW;
+} global_config_t;
 
-}
+//
+// block data structure
+//
+typedef struct 
+{
+  int block_B;
+  int block_W;
+  int block_H;
+  int block_K;
+  int block_C;
+  int block_Rp;
+  int block_Sp;
+  int block_Rpp;
+  int block_Spp;
+} block_config_t;
 
 //
 //  timer
