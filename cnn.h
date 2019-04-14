@@ -41,19 +41,19 @@ typedef struct
 //
 //  timer
 //
-double read_timer( )
-{
-    static bool initialized = false;
-    static struct timeval start;
-    struct timeval end;
-    if( !initialized )
-    {
-        gettimeofday( &start, NULL );
-        initialized = true;
-    }
-    gettimeofday( &end, NULL );
-    return (end.tv_sec - start.tv_sec) + 1.0e-6 * (end.tv_usec - start.tv_usec);
-}
+// double read_timer( )
+// {
+//     static bool initialized = false;
+//     static struct timeval start;
+//     struct timeval end;
+//     if( !initialized )
+//     {
+//         gettimeofday( &start, NULL );
+//         initialized = true;
+//     }
+//     gettimeofday( &end, NULL );
+//     return (end.tv_sec - start.tv_sec) + 1.0e-6 * (end.tv_usec - start.tv_usec);
+// }
 
 //
 //  command line option processing
@@ -80,4 +80,41 @@ char *read_string( int argc, char **argv, const char *option, char *default_valu
     if( iplace >= 0 && iplace < argc-1 )
         return argv[iplace+1];
     return default_value;
+}
+
+void set_random_array(int *array, int length)
+{
+    for (int i = 0; i < length; i++)
+    {
+        *(array + length) = rand() % 256;
+    }
+}
+
+void naive_cnn(int *images, int *filters, int *output, global_config_t t)
+{
+    for (int b = 0; b < t.B; b++)
+    {
+        for (int c = 0; c < t.C; c++)
+        {
+            for (int k = 0; k < t.K; k++)
+            {
+                for(int w = 0; k < t.W; w++)
+                {
+                    for (int h = 0; h < t.H; h++)
+                    {
+                        for (int r = 0; r < t.R; r++)
+                        {
+                            for (int s = 0; s < t.S; s++)
+                            {
+                                int offset_output = k * h * w * b;
+                                int offset_input = (r + t.sigW * w) * (s + t.sigH * h) * c * b;
+                                int offset_filter = k * r * s * c;
+                                *(output + offset_output) = *(images + offset_input) * *(filters + offset_filter);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
