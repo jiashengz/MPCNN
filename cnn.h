@@ -11,15 +11,15 @@ using namespace std;
 //
 typedef struct 
 {
-  int B;
-  int W;
-  int H;
-  int K;
-  int C;
-  int R;
-  int S;
-  int sigH;
-  int sigW;
+    int B;
+    int W;
+    int H;
+    int K;
+    int C;
+    int R;
+    int S;
+    int sigH;
+    int sigW;
 } global_config_t;
 
 //
@@ -27,15 +27,15 @@ typedef struct
 //
 typedef struct 
 {
-  int block_B;
-  int block_W;
-  int block_H;
-  int block_K;
-  int block_C;
-  int block_Rp;
-  int block_Sp;
-  int block_Rpp;
-  int block_Spp;
+    int block_B;
+    int block_W;
+    int block_H;
+    int block_K;
+    int block_C;
+    int block_Rp;
+    int block_Sp;
+    int block_Rpp;
+    int block_Spp;
 } block_config_t;
 
 //
@@ -81,3 +81,4 @@ char *read_string( int argc, char **argv, const char *option, char *default_valu
         return argv[iplace+1];
     return default_value;
 }
+
