@@ -1,4 +1,4 @@
-#include "cnn.h"
+#include "baseline_cnn.h"
 
 using namespace std;
 
@@ -13,7 +13,7 @@ public:
 	};
 	~baseline_cnn();
 	
-    void block_conv(const float * images, const float * filters, float * result, 
+    void block_conv(const int * images, const int * filters, int * result, 
         int B, int C, int K, int W, int H, int RP, int RPP, int SP, int SPP){
         int b = 0, c = 0, k = 0, w = 0, h = 0, rp = 0, rpp = 0, sp = 0, spp = 0;
         for (;b < block_config.block_B; ++b)
@@ -48,7 +48,7 @@ public:
         }
     }
 
-	void conv(const float * images, const float * filters, float * result){
+	void conv(const int * images, const int * filters, int * result){
 		int b = 0, c = 0, k = 0, w = 0, h = 0, rp = 0, rpp = 0, sp = 0, spp = 0;
         for (;b < global_config.B - block_config.block_B; b += block_config.block_B)
         {

@@ -97,8 +97,8 @@ void naive_cnn(int *images, int *filters, int *output, global_config_t t)
         for (int c = 0; c < t.C; c++)
         {
             for (int k = 0; k < t.K; k++)
-            {
-                for(int w = 0; k < t.W; w++)
+            { 
+                for(int w = 0; w < t.W; w++)
                 {
                     for (int h = 0; h < t.H; h++)
                     {
@@ -106,10 +106,11 @@ void naive_cnn(int *images, int *filters, int *output, global_config_t t)
                         {
                             for (int s = 0; s < t.S; s++)
                             {
-                                int offset_output = k * h * w * b;
-                                int offset_input = (r + t.sigW * w) * (s + t.sigH * h) * c * b;
-                                int offset_filter = k * r * s * c;
-                                *(output + offset_output) = *(images + offset_input) * *(filters + offset_filter);
+                                int offset_output = k * t.H * t.W * t.B + h * t.W * t.B + w * t.B + b;
+                                int offset_input = (r + t.sigW * w) * (t.sigH * (t.H - 1) + t.S) * t.C * t.B + (s + t.sigH * h) * t.C * t.B + c * t.B + b;
+                                int offset_filter = k * t.R * t.S * t.C + r * t.S * t.C + s * t.C + c;
+                                output[offset_output] += images[offset_input] * filters[offset_filter];
+                                //cout << offset_output << " ";
                             }
                         }
                     }
