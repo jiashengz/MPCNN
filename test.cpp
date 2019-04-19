@@ -8,7 +8,8 @@ int main(int argc, char **argv)
     srand(time(NULL));
 
     global_config_t test_global = {100, 36, 36, 6, 3, 6, 6, 2, 2};
-    block_config_t test_block = {100, 6, 6, 6, 3, 3, 3, 1, 1};
+    block_config_t test_block = {100, 5, 5, 5, 3, 3, 3, 1, 1};
+    // block_config_t test_block = {100, 6, 6, 6, 3, 3, 3, 1, 1};
     // global_config_t test_global = {1, 4, 4, 1, 1, 1, 1, 1, 1};
     // block_config_t test_block = {1, 2, 2, 1, 1, 1, 1, 1, 1};  
     int input_w = test_global.sigW * (test_global.W - 1) + test_global.R;
