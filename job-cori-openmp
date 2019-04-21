@@ -1,0 +1,11 @@
+#!/bin/bash -l
+#SBATCH -C haswell
+#SBATCH -p debug      # change this option for non-debug runs
+#SBATCH -N 1          # you'll never need more than 1 node for the openmp code
+#SBATCH -t 00:10:00   # adjust the amount of time as necessary
+#SBATCH -J openmp32
+#SBATCH -o openmp32.%j.stdout
+#SBATCH -e openmp32.%j.error
+
+export OMP_NUM_THREADS=32
+srun -N 1 -n 1 -c 32 ./openmp -n 500 -o openmp.txt

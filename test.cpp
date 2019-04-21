@@ -1,4 +1,5 @@
 #include "baseline_cnn.h"
+#include <assert.h> 
 
 using namespace std;
 
@@ -54,3 +55,4 @@ int main(int argc, char **argv)
     delete[] output_baseline;
     return 0;
 }
+

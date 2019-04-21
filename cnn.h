@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #define DEFAULT_CACHE_SIZE 16384
 
@@ -119,3 +120,4 @@ void naive_cnn(int *images, int *filters, int *output, global_config_t t)
         }
     }
 }
+
