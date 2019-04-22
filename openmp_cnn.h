@@ -5,9 +5,10 @@
 
 class openmp_cnn
 {
-	global_config_t global_config;
-	block_config_t block_config;
-public:
+	public:
+    global_config_t global_config;
+    block_config_t block_config;
+
 	openmp_cnn(global_config_t g, block_config_t b){
 		global_config = g;
 		block_config = b;
@@ -38,9 +39,10 @@ public:
         int gc_sigH = global_config.sigH;
         int gc_sigW = global_config.sigW;
 
-        #pragma omp parallel{
+        #pragma omp parallel
+        {
         // #pragma omp parallel shared(result, images, filters, block_B, block_C, block_K, block_W, block_H, block_Rp, block_Rpp, block_Sp, block_Spp){
-            #pragma omp for 
+            #pragma omp for collapse(9)
             for (b = 0;b < block_B; ++b)
             {
                 for (c = 0;c < block_C; ++c)
@@ -62,6 +64,7 @@ public:
                                                 //cerr << (k+K)*global_config.H*global_config.W*global_config.B+(h+H)*global_config.W*global_config.B+(w+W)*global_config.B+b+B << " ";
                                                 tmp = images[(rpp+RPP+gc_sigW*(rp+RP+w+W))*((gc_H-1)*gc_sigH+gc_S)*gc_C*gc_B 
                                                     + (SPP+spp+gc_sigH*(sp+SP+h+H))*gc_C*gc_B+(c+C)*gc_B+b+B] * filters[(k+K)*gc_S*gc_R*gc_C+(gc_sigW*(rp+RP)+rpp+RPP)*gc_S*gc_C+(gc_sigH*(sp+SP)+spp+SPP)*gc_C+c+C];
+                                                #pragma omp critical
                                                 result[(k+K)*gc_H*gc_W*gc_B+(h+H)*gc_W*gc_B+(w+W)*gc_B+b+B] += tmp;
                                             }
                                         }

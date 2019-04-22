@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
+#include <sys/time.h>
+
 
 #define DEFAULT_CACHE_SIZE 16384
 
@@ -118,6 +121,5 @@ void naive_cnn(int *images, int *filters, int *output, global_config_t t)
                 }
             }
         }
-    }
+     }
 }
-

@@ -1,4 +1,21 @@
 #include "openmp_cnn.h"
+#include <assert.h> 
+
+using namespace std;
+
+double read_timer( )
+{
+    static bool initialized = false;
+    static struct timeval start;
+    struct timeval end;
+    if( !initialized )
+    {
+        gettimeofday( &start, NULL );
+        initialized = true;
+    }
+    gettimeofday( &end, NULL );
+    return (end.tv_sec - start.tv_sec) + 1.0e-6 * (end.tv_usec - start.tv_usec);
+}
 
 int main(int argc, char **argv)
 {
@@ -36,16 +53,20 @@ int main(int argc, char **argv)
 
     openmp_cnn mp_cnn(test_global, test_block);
 
+    double sim1 = read_timer();
     mp_cnn.conv(test_input, filter, output_mpcnn);
-    cerr << endl;
+    sim1 = read_timer() - sim1;
+    double sim2 = read_timer();
     naive_cnn(test_input, filter, output_naive, test_global);
-    cerr << endl;
+    sim2 = read_timer() - sim2;
 
-    // for (int i = 0; i < output_size; i++)
-    // {
-    //     cout << output_naive[i] << "  VS.  " << output_mpcnn[i] << endl;
-    //     assert(output_naive[i] == output_mpcnn[i]);
-    // }
+    cout << "openmp: " << sim1 << "  naive: " << sim2 << endl;
+
+    for (int i = 0; i < output_size; i++)
+    {
+        cout << output_naive[i] << "  VS.  " << output_mpcnn[i] << endl;
+        assert(output_naive[i] == output_mpcnn[i]);
+    }
     delete[] test_input; 
     delete[] output_naive;
     delete[] output_mpcnn;
