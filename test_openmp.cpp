@@ -1,7 +1,4 @@
 #include "openmp_cnn.h"
-#include <assert.h> 
-
-using namespace std;
 
 int main(int argc, char **argv)
 {
@@ -44,13 +41,14 @@ int main(int argc, char **argv)
     naive_cnn(test_input, filter, output_naive, test_global);
     cerr << endl;
 
-    for (int i = 0; i < output_size; i++)
-    {
-        cout << output_naive[i] << "  VS.  " << output_mpcnn[i] << endl;
-        assert(output_naive[i] == output_mpcnn[i]);
-    }
+    // for (int i = 0; i < output_size; i++)
+    // {
+    //     cout << output_naive[i] << "  VS.  " << output_mpcnn[i] << endl;
+    //     assert(output_naive[i] == output_mpcnn[i]);
+    // }
     delete[] test_input; 
     delete[] output_naive;
     delete[] output_mpcnn;
     return 0;
-}
+};
+

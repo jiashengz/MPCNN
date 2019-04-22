@@ -1,7 +1,7 @@
 #include "cnn.h"
 #include "omp.h"
 
-using namespace std;
+// using namespace std;
 
 class openmp_cnn
 {
@@ -11,7 +11,7 @@ public:
 	openmp_cnn(global_config_t g, block_config_t b){
 		global_config = g;
 		block_config = b;
-	};
+	}
 	
     void block_conv(const int * images, const int * filters, int * result, 
         int B, int C, int K, int W, int H, int RP, int RPP, int SP, int SPP){
@@ -27,31 +27,43 @@ public:
         int block_Sp = min (global_config.S/global_config.sigH - SP, block_config.block_Sp);
         int block_Spp = min (global_config.sigH - SPP, block_config.block_Spp);
         int tmp;
-        #pragma omp parallel for
-        for (b = 0;b < block_B; ++b)
-        {
-            for (c = 0;c < block_C; ++c)
+        //omp do not share structures
+        int gc_B = global_config.B;
+        int gc_W = global_config.W;
+        int gc_H = global_config.H;
+        int gc_K = global_config.K;
+        int gc_C = global_config.C;
+        int gc_R = global_config.R;
+        int gc_S = global_config.S;
+        int gc_sigH = global_config.sigH;
+        int gc_sigW = global_config.sigW;
+
+        #pragma omp parallel{
+        // #pragma omp parallel shared(result, images, filters, block_B, block_C, block_K, block_W, block_H, block_Rp, block_Rpp, block_Sp, block_Spp){
+            #pragma omp for 
+            for (b = 0;b < block_B; ++b)
             {
-                for (k = 0; k < block_K; ++k)
+                for (c = 0;c < block_C; ++c)
                 {
-                    for (w = 0; w < block_W; ++w)
+                    for (k = 0; k < block_K; ++k)
                     {
-                        for (h = 0; h < block_H; ++h)
+                        for (w = 0; w < block_W; ++w)
                         {
-                            for (rp = 0 ; rp < block_Rp; ++rp)
+                            for (h = 0; h < block_H; ++h)
                             {
-                                for (rpp = 0 ; rpp < block_Rpp; ++rpp)
+                                for (rp = 0 ; rp < block_Rp; ++rp)
                                 {
-                                    for (sp = 0; sp < block_Sp; ++sp)
+                                    for (rpp = 0 ; rpp < block_Rpp; ++rpp)
                                     {
-                                        for (spp = 0; spp < block_Spp; ++spp)
+                                        for (sp = 0; sp < block_Sp; ++sp)
                                         {
-                                            //cerr << (k+K)*global_config.H*global_config.W*global_config.B+(h+H)*global_config.W*global_config.B+(w+W)*global_config.B+b+B << " ";
-                                            tmp = images[(rpp+RPP+global_config.sigW*(rp+RP+w+W))*((global_config.H-1)*global_config.sigH+global_config.S)*global_config.C*global_config.B
-                                                        + (SPP+spp+global_config.sigH*(sp+SP+h+H))*global_config.C*global_config.B+(c+C)*global_config.B+b+B]
-                                                * filters[(k+K)*global_config.S*global_config.R*global_config.C+(global_config.sigW*(rp+RP)+rpp+RPP)*global_config.S*global_config.C+(global_config.sigH*(sp+SP)+spp+SPP)*global_config.C+c+C];
-                                            #pragma omp critical
-                                            result[(k+K)*global_config.H*global_config.W*global_config.B+(h+H)*global_config.W*global_config.B+(w+W)*global_config.B+b+B] += tmp;
+                                            for (spp = 0; spp < block_Spp; ++spp)
+                                            {
+                                                //cerr << (k+K)*global_config.H*global_config.W*global_config.B+(h+H)*global_config.W*global_config.B+(w+W)*global_config.B+b+B << " ";
+                                                tmp = images[(rpp+RPP+gc_sigW*(rp+RP+w+W))*((gc_H-1)*gc_sigH+gc_S)*gc_C*gc_B 
+                                                    + (SPP+spp+gc_sigH*(sp+SP+h+H))*gc_C*gc_B+(c+C)*gc_B+b+B] * filters[(k+K)*gc_S*gc_R*gc_C+(gc_sigW*(rp+RP)+rpp+RPP)*gc_S*gc_C+(gc_sigH*(sp+SP)+spp+SPP)*gc_C+c+C];
+                                                result[(k+K)*gc_H*gc_W*gc_B+(h+H)*gc_W*gc_B+(w+W)*gc_B+b+B] += tmp;
+                                            }
                                         }
                                     }
                                 }
@@ -104,3 +116,4 @@ public:
         }
 	}
 };
+

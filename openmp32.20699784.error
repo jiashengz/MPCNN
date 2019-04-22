@@ -1,0 +1,2 @@
+srun: error: nid01302: task 0: Segmentation fault
+srun: Terminating job step 20699784.0

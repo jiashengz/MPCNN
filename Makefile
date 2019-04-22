@@ -21,7 +21,7 @@ ifneq (,$(IS_ICC))
 	LIBS = 
 endif
 
-TARGETS = test
+TARGETS = test openmp
 
 all:	$(TARGETS)
 
@@ -57,3 +57,4 @@ test_openmp.o: test_openmp.cpp
 
 clean:
 	rm -f *.o $(TARGETS) *.stdout *.txt
+
