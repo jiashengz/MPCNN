@@ -64,7 +64,7 @@ int main(int argc, char **argv)
 
     for (int i = 0; i < output_size; i++)
     {
-        cout << output_naive[i] << "  VS.  " << output_mpcnn[i] << endl;
+        // cout << output_naive[i] << "  VS.  " << output_mpcnn[i] << endl;
         assert(output_naive[i] == output_mpcnn[i]);
     }
     delete[] test_input; 

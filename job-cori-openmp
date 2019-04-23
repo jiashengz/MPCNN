@@ -7,5 +7,5 @@
 #SBATCH -o openmp32.%j.stdout
 #SBATCH -e openmp32.%j.error
 
-export OMP_NUM_THREADS=32
-srun -N 1 -n 1 -c 32 ./openmp -n 500 -o openmp.txt
+export OMP_NUM_THREADS=8
+srun -N 1 -n 1 -c 8 ./openmp -o openmp.txt
