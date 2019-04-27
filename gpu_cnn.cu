@@ -7,7 +7,7 @@
 #include "cnn.h"
 
 #define NUM_THREADS 256
-#define CHECK_CORRECTNESS true
+#define RUN_COMPARE true
 
 using namespace std;
 
@@ -129,12 +129,16 @@ void compute_conv(global_config_t * global_config, block_config_t* block_config,
     cudaMemcpy(gpu_config_block, block_config, sizeof(block_config_t), cudaMemcpyHostToDevice);
 
 	cudaDeviceSynchronize();
+	double simulation_time = read_timer();
 
 	gpu_conv<<<1,NUM_THREADS>>>(gpu_config_global, gpu_config_block, gpu_input, gpu_filter, gpu_output, input_size, filter_size, output_size);
+	
+	cudaDeviceSynchronize();
+	cout << "GPU CNN: " << read_timer() - simulation_time << endl;
 
     cudaMemcpy(result, gpu_output, output_size * sizeof(int), cudaMemcpyDeviceToHost);
 
-	cudaDeviceSynchronize();
+	
 }
 
 int main(int argc, char const *argv[])
@@ -172,17 +176,15 @@ int main(int argc, char const *argv[])
     // int * output_naive = new int[output_size]();
     int * output_gpu = new int[output_size]();
 
-    double simulation_time = read_timer();
+    
 
 	compute_conv(&test_global, &test_block, test_input, filter, output_gpu, input_size, filter_size, output_size);
 	
-	cout << "GPU CNN: " << read_timer() - simulation_time << endl;
 
-	if (CHECK_CORRECTNESS){
+	if (RUN_COMPARE){
 		int * output_naive = new int[output_size]();
 
-
-		simulation_time = read_timer();
+		double simulation_time = read_timer();
 		naive_cnn(test_input, filter, output_naive, test_global);
 		cout << "Naive CNN: " << read_timer() - simulation_time << endl;
 		bool correct = true;
