@@ -21,17 +21,17 @@ ifneq (,$(IS_ICC))
 	LIBS = 
 endif
 
-TARGETS = test openmp
+TARGETS = openmp
 
 all:	$(TARGETS)
 
-test: test.o 
-	$(CXX) -o $@ $(LIBS) test.o
+# test: test.o 
+# 	$(CXX) -o $@ $(LIBS) test.o
 openmp: test_openmp.o 
 	$(CXX) -o $@ $(LIBS) $(OPENMP) test_openmp.o
 
-test.o: test.cpp
-	$(CXX) -c $(CFLAGS) test.cpp
+# test.o: test.cpp
+# 	$(CXX) -c $(CFLAGS) test.cpp
 test_openmp.o: test_openmp.cpp
 	$(CXX) -c $(OPENMP) $(CFLAGS) test_openmp.cpp
 

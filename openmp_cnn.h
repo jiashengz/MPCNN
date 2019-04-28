@@ -133,6 +133,8 @@ class openmp_cnn
                 }
             }
     	}
+
+        cout << "number of thread is: " << nthreads << endl;
     }
 };
 

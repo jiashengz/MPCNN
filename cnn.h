@@ -1,3 +1,6 @@
+#ifndef CNN_H
+#define CNN_H
+
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
@@ -122,4 +125,8 @@ void naive_cnn(int *images, int *filters, int *output, global_config_t t)
             }
         }
      }
+
 }
+
+#endif
+

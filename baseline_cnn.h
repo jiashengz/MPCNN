@@ -1,5 +1,6 @@
 #include "cnn.h"
 
+
 using namespace std;
 
 class baseline_cnn
