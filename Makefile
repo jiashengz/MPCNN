@@ -1,6 +1,6 @@
 CC = nvcc
-CFLAGS = -O3 -arch=compute_52 -code=sm_52
-NVCCFLAGS = -O3 -arch=compute_52 -code=sm_52
+CFLAGS = -O3 -arch=compute_37 -code=sm_37
+NVCCFLAGS = -O3 -arch=compute_37 -code=sm_37
 LIBS = 
 
 TARGETS = gpu_cnn

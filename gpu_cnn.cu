@@ -68,7 +68,7 @@ __global__ void gpu_conv(global_config_t * gpu_config_global, block_config_t* gp
 
 	int tid = threadIdx.x + blockIdx.x * blockDim.x;
 	if(tid >= 256) return;
-	int nb = 32, nk = 2, nw = 2, nh = 2;
+	int nb = 8, nk = 2, nw = 4, nh = 4;
 	int b_steps = gpu_config_global->B / gpu_config_block->block_B / nb;
 	int b_index = tid / (256 / nb);
 	int b_start = gpu_config_block->block_B * (b_index) * b_steps;
@@ -163,8 +163,8 @@ int main(int argc, char const *argv[])
 // Initialize input image
     srand(time(NULL));
 
-    global_config_t test_global = {256, 160, 160, 6, 3, 6, 6, 2, 2};
-    block_config_t test_block = {1, 20, 20, 3, 3, 3, 3, 1, 1};
+    global_config_t test_global = {256, 512, 512, 6, 3, 6, 6, 2, 2};
+    block_config_t test_block = {2, 64, 64, 3, 3, 3, 3, 1, 1};
     // block_config_t test_block = {100, 6, 6, 6, 3, 3, 3, 1, 1};
     // global_config_t test_global = {1, 4, 4, 1, 1, 1, 1, 1, 1};
     // block_config_t test_block = {1, 2, 2, 1, 1, 1, 1, 1, 1};  
