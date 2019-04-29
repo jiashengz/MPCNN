@@ -1,4 +1,5 @@
 #include "openmp_cnn.h"
+#include "baseline_cnn.h"
 #include <assert.h> 
 
 using namespace std;
@@ -22,7 +23,7 @@ int main(int argc, char **argv)
     // Initialize input image
     srand(time(NULL));
 
-    global_config_t test_global = {100, 36, 36, 6, 3, 6, 6, 2, 2};
+    global_config_t test_global = {500, 36, 36, 6, 3, 6, 6, 2, 2};
     block_config_t test_block = {100, 5, 5, 5, 3, 3, 3, 1, 1};
     // block_config_t test_block = {100, 6, 6, 6, 3, 3, 3, 1, 1};
     // global_config_t test_global = {1, 4, 4, 1, 1, 1, 1, 1, 1};
@@ -50,8 +51,10 @@ int main(int argc, char **argv)
 
     int * output_naive = new int[output_size]();
     int * output_mpcnn = new int[output_size]();
+    int * output_baseline = new int[output_size]();
 
     openmp_cnn mp_cnn(test_global, test_block);
+    baseline_cnn base_cnn(test_global, test_block);
 
     double sim1 = read_timer();
     mp_cnn.conv(test_input, filter, output_mpcnn);
@@ -59,17 +62,21 @@ int main(int argc, char **argv)
     double sim2 = read_timer();
     naive_cnn(test_input, filter, output_naive, test_global);
     sim2 = read_timer() - sim2;
+    double sim3 = read_timer();
+    base_cnn.conv(test_input, filter, output_baseline);
+    sim3 = read_timer() - sim3;
 
-    cout << "openmp: " << sim1 << "  naive: " << sim2 << endl;
+    cout << "openmp: " << sim1 << "  baseline: " << sim3 << "  naive: " << sim2 << endl;
 
     for (int i = 0; i < output_size; i++)
     {
-        cout << output_naive[i] << "  VS.  " << output_mpcnn[i] << endl;
+        // cout << output_naive[i] << "  VS.  " << output_mpcnn[i] << endl;
         assert(output_naive[i] == output_mpcnn[i]);
     }
     delete[] test_input; 
     delete[] output_naive;
     delete[] output_mpcnn;
+    delete[] output_baseline;
     return 0;
 };
 
