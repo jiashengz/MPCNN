@@ -67,19 +67,35 @@ __global__ void gpu_conv(global_config_t * gpu_config_global, block_config_t* gp
 	int input_size, int filter_size, int output_size){
 
 	int tid = threadIdx.x + blockIdx.x * blockDim.x;
-	if(tid > 256) return;
+	if(tid >= 256) return;
+	int nb = 32, nk = 2, nw = 2, nh = 2;
+	int b_steps = gpu_config_global->B / gpu_config_block->block_B / nb;
+	int b_index = tid / (256 / nb);
+	int b_start = gpu_config_block->block_B * (b_index) * b_steps;
 
-	int b = tid, c = 0, k = 0, w = 0, h = 0, rp = 0, rpp = 0, sp = 0, spp = 0;
-        // for (b = 0;b <= global_config->B - block_config->block_B; b += block_config->block_B)
-	//for (b = 0;b < global_config->B ; b += block_config->block_B)
+	int k_index = tid / (256 / (nb * nk)) % (nk);
+	int k_steps = gpu_config_global->K / gpu_config_block->block_K / nk;
+	int k_start = gpu_config_block->block_K * k_index * k_steps;
+
+	int w_index = tid / (256 / (nb * nk * nw)) % nw;
+	int w_steps = gpu_config_global->W / gpu_config_block->block_W / nw;
+	int w_start = gpu_config_block->block_W * w_index * w_steps;
+
+	int h_index = tid / (256 / (nb * nk * nw * nh)) % nh;
+	int h_steps = gpu_config_global->H / gpu_config_block->block_H / nh;
+	int h_start = gpu_config_block->block_H * h_index * h_steps;
+
+	int b_step, k_step, w_step, h_step;
+	int b = 0, c = 0, k = 0, w = 0, h = 0, rp = 0, rpp = 0, sp = 0, spp = 0;
+	for (b = b_start, b_step = b_steps;b < gpu_config_global->B && b_step > 0; b += gpu_config_block->block_B, b_step--)
 	{
 		for (c = 0;c < gpu_config_global->C; c += gpu_config_block->block_C)
 		{
-			for (k = 0; k < gpu_config_global->K ; k += gpu_config_block->block_K)
+			for (k = k_start, k_step = k_steps; k < gpu_config_global->K && k_step > 0; k += gpu_config_block->block_K, k_step--)
 			{
-				for (w = 0; w < gpu_config_global->W; w += gpu_config_block->block_W)
+				for (w = w_start, w_step = w_steps; w < gpu_config_global->W && w_step > 0; w += gpu_config_block->block_W, w_step--)
 				{
-					for (h = 0; h < gpu_config_global->H; h += gpu_config_block->block_H)
+					for (h = h_start, h_step = h_steps; h < gpu_config_global->H && h_step > 0; h += gpu_config_block->block_H, h_step--)
 					{
 						for (rp = 0; rp < gpu_config_global->R / gpu_config_global->sigW; rp += gpu_config_block->block_Rp)
 						{
@@ -147,8 +163,8 @@ int main(int argc, char const *argv[])
 // Initialize input image
     srand(time(NULL));
 
-    global_config_t test_global = {256, 36, 36, 6, 3, 6, 6, 2, 2};
-    block_config_t test_block = {1, 5, 5, 5, 3, 3, 3, 1, 1};
+    global_config_t test_global = {256, 160, 160, 6, 3, 6, 6, 2, 2};
+    block_config_t test_block = {1, 20, 20, 3, 3, 3, 3, 1, 1};
     // block_config_t test_block = {100, 6, 6, 6, 3, 3, 3, 1, 1};
     // global_config_t test_global = {1, 4, 4, 1, 1, 1, 1, 1, 1};
     // block_config_t test_block = {1, 2, 2, 1, 1, 1, 1, 1, 1};  
