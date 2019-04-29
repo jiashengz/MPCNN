@@ -21,7 +21,7 @@ ifneq (,$(IS_ICC))
 	LIBS = 
 endif
 
-TARGETS = test openmp
+TARGETS = openmp
 
 all:	$(TARGETS)
 

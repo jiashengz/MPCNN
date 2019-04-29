@@ -22,8 +22,8 @@ int main(int argc, char **argv)
     // Initialize input image
     srand(time(NULL));
 
-    global_config_t test_global = {100, 36, 36, 6, 3, 6, 6, 2, 2};
-    block_config_t test_block = {100, 5, 5, 5, 3, 3, 3, 1, 1};
+    global_config_t test_global = {32, 16, 16, 8, 3, 6, 6, 2, 2};
+    block_config_t test_block = {2, 2, 2, 2, 3, 3, 3, 1, 1};
     // block_config_t test_block = {100, 6, 6, 6, 3, 3, 3, 1, 1};
     // global_config_t test_global = {1, 4, 4, 1, 1, 1, 1, 1, 1};
     // block_config_t test_block = {1, 2, 2, 1, 1, 1, 1, 1, 1};  
@@ -64,7 +64,7 @@ int main(int argc, char **argv)
 
     for (int i = 0; i < output_size; i++)
     {
-        cout << output_naive[i] << "  VS.  " << output_mpcnn[i] << endl;
+        // cout << output_naive[i] << "  VS.  " << output_mpcnn[i] << endl;
         assert(output_naive[i] == output_mpcnn[i]);
     }
     delete[] test_input; 

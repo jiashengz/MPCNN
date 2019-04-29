@@ -1,5 +1,6 @@
 #include "cnn.h"
 #include "omp.h"
+// #include <stdio.h>
 //  #include <mutex>
 // #include <vector>
 // using namespace std;
@@ -72,6 +73,7 @@ class openmp_cnn
                                             // locks[idx]->lock();
                                             // #pragma omp atomic
                                             result[idx] += tmp;
+                                            // cout << result << endl;
                                             // locks[idx]->unlock();
                                         }
                                     }
@@ -88,27 +90,73 @@ class openmp_cnn
 		int b = 0, c = 0, k = 0, w = 0, h = 0, rp = 0, rpp = 0, sp = 0, spp = 0;
         // for (b = 0;b <= global_config.B - block_config.block_B; b += block_config.block_B)
         int id, nthrds, nthreads;
-
+        // omp_set_num_threads(32);
         #pragma omp parallel
         {
             id = omp_get_thread_num();
             nthrds = omp_get_num_threads();
             if (id == 0) nthreads = nthrds;
+            
+            int nb=4, nk=2, nw=2, nh=2;
+
+            int b_steps = global_config.B / block_config.block_B / nb; 
+            int b_index = id / (32/nb);
+            int b_start = block_config.block_B * b_index * b_steps;
+            // if (id == 0) cout<<"bid"<< b_id<< " "<< id<<endl;
+            // if(id == 31) cout<<"hi"<< b_steps<<b_index<<b_start<<endl;
+
+            int k_index = id / (32 / (nb*nk)) % nk;
+            int k_steps = global_config.K / block_config.block_K / nk; 
+            int k_start = block_config.block_K * k_index * k_steps;
+            // if (id == 0) cout<<"cid"<< c_id<< " "<< id<<endl;
+
+            int w_index = id / (32 / (nb * nk * nw)) % nw;
+            int w_steps = global_config.W / block_config.block_W / nw; 
+            int w_start = block_config.block_W * w_index * w_steps;
+
+            int h_index = id / (32/(nb * nk * nw * nh)) % nh;
+            int h_steps = global_config.H / block_config.block_H / nh; 
+            int h_start = block_config.block_H * h_index * h_steps;
+            // #pragma omp critical
+            // {
+            // cout<<"Thread rank: "<<id << \
+            // " B:" << b_start<<"-"<<b_start + block_config.block_B * b_steps - 1 << \
+            // " K:"<< k_start<<"-"<<k_start + block_config.block_K * k_steps - 1 << \
+            // " W:"<< w_start<<"-"<<w_start + block_config.block_W * w_steps - 1 << \
+            // " H:"<< h_start<<"-"<<h_start + block_config.block_H * h_steps - 1 << \
+            // endl;
+            // }
+            // printf("Thread rank: %d", id);
+            // printf(" B: %d  %d", b_start, b_start + block_config.block_B * b_steps - 1);
+            // printf(" K: %d  %d", k_start, k_start + block_config.block_K * k_steps - 1);
+            // printf(" W: %d  %d", w_start, w_start + block_config.block_W * w_steps - 1);
+            // printf(" H: %d  %d \n", h_start, h_start + block_config.block_H * h_steps - 1);
+            printf("Thread rank: %d B: %d - %d K: %d - %d W: %d  %d H: %d - %d \n", id, b_start, b_start + block_config.block_B * b_steps - 1,\
+            k_start, k_start + block_config.block_K * k_steps - 1,\
+            w_start, w_start + block_config.block_W * w_steps - 1,\
+            h_start, h_start + block_config.block_H * h_steps - 1);
+            
+
+            int b_step, k_step, w_step, h_step;
             // #pragma omp parallel shared(result, images, filters, block_B, block_C, block_K, block_W, block_H, block_Rp, block_Rpp, block_Sp, block_Spp){
-            #pragma omp for collapse(5) nowait
-            for (b = 0;b < global_config.B ; b += block_config.block_B)
+            // #pragma omp for collapse(5) nowait
+            for(b = b_start, b_step = b_steps; b < global_config.B && b_step > 0;  b += block_config.block_B, b_step--)
+            // for (b = 0;b < global_config.B ; b += block_config.block_B)
             {
                 // for (c = 0;c <= global_config.C - block_config.block_C; c += block_config.block_C)
                 for (c = 0;c < global_config.C; c += block_config.block_C)
                 {
                     // for (k = 0; k <= global_config.K - block_config.block_K; k += block_config.block_K)
-                    for (k = 0; k < global_config.K ; k += block_config.block_K)
+                    // for (k = 0; k < global_config.K ; k += block_config.block_K)
+                    for(k = k_start, k_step = k_steps; k < global_config.K && k_step > 0;  k += block_config.block_K, k_step--)
                     {
                         // for (w = 0; w <= global_config.W - block_config.block_W; w += block_config.block_W)
-                        for (w = 0; w < global_config.W; w += block_config.block_W)
+                        // for (w = 0; w < global_config.W; w += block_config.block_W)
+                        for(w = w_start, w_step = w_steps; w < global_config.W && w_step > 0;  w += block_config.block_W, w_step--)
                         {
                             // for (h = 0; h <= global_config.H - block_config.block_H; h += block_config.block_H)
-                            for (h = 0; h < global_config.H; h += block_config.block_H)
+                            // for (h = 0; h < global_config.H; h += block_config.block_H)
+                            for(h = h_start, h_step = h_steps; h < global_config.H && h_step > 0;  h += block_config.block_H, h_step--)
                             {
                                 // for (rp = 0; rp <= global_config.R / global_config.sigW - block_config.block_Rp; rp += block_config.block_Rp)
                                 for (rp = 0; rp < global_config.R / global_config.sigW; rp += block_config.block_Rp)
@@ -122,6 +170,7 @@ class openmp_cnn
                                             // for (spp = 0; spp <= global_config.sigH - block_config.block_Spp; spp += block_config.block_Spp)
                                             for (spp = 0; spp < global_config.sigH; spp += block_config.block_Spp)
                                             {
+                                                // cout<<"hi"<<endl;
                                                 block_conv(images, filters, result, b, c, k, w, h, rp, rpp, sp, spp);
                                             }
                                         }
@@ -133,6 +182,7 @@ class openmp_cnn
                 }
             }
     	}
+        std::cout<<"Number of Threads"<< nthreads <<std::endl; 
     }
 };
 
