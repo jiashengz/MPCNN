@@ -1,0 +1,20 @@
+#!/bin/bash
+#SBATCH -J auto-bridges-gpu
+#SBATCH -o auto-bridges-gpu.stdout
+#SBATCH -p GPU-shared
+#SBATCH --gres=gpu:k80:1
+#SBATCH -t 02:00:00
+#SBATCH -N 1         
+
+echo '32 1 4 2'
+./gpu_cnn -nb 32 -nk 1 -nw 4 -nh 2
+echo '32 1 2 4'
+./gpu_cnn -nb 32 -nk 1 -nw 2 -nh 4
+echo '16 1 8 2'
+./gpu_cnn -nb 32 -nk 1 -nw 8 -nh 2
+echo '16 1 2 8'
+./gpu_cnn -nb 32 -nk 1 -nw 2 -nh 8
+echo '8 1 8 4'
+./gpu_cnn -nb 32 -nk 1 -nw 8 -nh 4
+echo '8 1 4 8'
+./gpu_cnn -nb 32 -nk 1 -nw 4 -nh 8

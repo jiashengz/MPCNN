@@ -7,7 +7,7 @@
 #include "cnn.h"
 
 #define NUM_THREADS 256
-#define RUN_COMPARE true
+#define RUN_COMPARE false
 
 using namespace std;
 
@@ -64,11 +64,11 @@ __device__ void block_conv(global_config_t * global_config, block_config_t* bloc
 
 __global__ void gpu_conv(global_config_t * gpu_config_global, block_config_t* gpu_config_block,
 	int * gpu_input, int * gpu_filter, int * gpu_output,
-	int input_size, int filter_size, int output_size){
+	int input_size, int filter_size, int output_size,
+	int nb, int nk, int nw, int nh){
 
 	int tid = threadIdx.x + blockIdx.x * blockDim.x;
 	if(tid >= 256) return;
-	int nb = 8, nk = 2, nw = 4, nh = 4;
 	int b_steps = gpu_config_global->B / gpu_config_block->block_B / nb;
 	int b_index = tid / (256 / nb);
 	int b_start = gpu_config_block->block_B * (b_index) * b_steps;
@@ -121,7 +121,8 @@ __global__ void gpu_conv(global_config_t * gpu_config_global, block_config_t* gp
 
 void compute_conv(global_config_t * global_config, block_config_t* block_config,
 	int * images, int * filters, int * result,
-	int input_size, int filter_size, int output_size){
+	int input_size, int filter_size, int output_size,
+	int nb, int nk, int nw, int nh){
 
 	cudaDeviceSynchronize();
     int * gpu_input, * gpu_filter, *gpu_output;
@@ -147,7 +148,7 @@ void compute_conv(global_config_t * global_config, block_config_t* block_config,
 	cudaDeviceSynchronize();
 	double simulation_time = read_timer();
 
-	gpu_conv<<<1,NUM_THREADS>>>(gpu_config_global, gpu_config_block, gpu_input, gpu_filter, gpu_output, input_size, filter_size, output_size);
+	gpu_conv<<<1,NUM_THREADS>>>(gpu_config_global, gpu_config_block, gpu_input, gpu_filter, gpu_output, input_size, filter_size, output_size, nb, nk, nw, nh);
 	
 	cudaDeviceSynchronize();
 	cout << "GPU CNN: " << read_timer() - simulation_time << endl;
@@ -157,7 +158,7 @@ void compute_conv(global_config_t * global_config, block_config_t* block_config,
 	
 }
 
-int main(int argc, char const *argv[])
+int main(int argc, char **argv)
 {
 	cudaDeviceSynchronize();
 // Initialize input image
@@ -192,9 +193,12 @@ int main(int argc, char const *argv[])
     // int * output_naive = new int[output_size]();
     int * output_gpu = new int[output_size]();
 
-    
+    int nb = read_int( argc, argv, "-nb", 8 );
+    int nk = read_int( argc, argv, "-nk", 2 );
+    int nw = read_int( argc, argv, "-nw", 4 );
+    int nh = read_int( argc, argv, "-nh", 4 );
 
-	compute_conv(&test_global, &test_block, test_input, filter, output_gpu, input_size, filter_size, output_size);
+	compute_conv(&test_global, &test_block, test_input, filter, output_gpu, input_size, filter_size, output_size, nb, nk, nw, nh);
 	
 
 	if (RUN_COMPARE){
