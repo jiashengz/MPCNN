@@ -7,7 +7,7 @@
 #include "cnn.h"
 
 #define NUM_THREADS 256
-#define RUN_COMPARE false
+#define RUN_COMPARE true
 
 using namespace std;
 
@@ -68,20 +68,20 @@ __global__ void gpu_conv(global_config_t * gpu_config_global, block_config_t* gp
 	int nb, int nk, int nw, int nh){
 
 	int tid = threadIdx.x + blockIdx.x * blockDim.x;
-	if(tid >= 256) return;
+	if(tid >= NUM_THREADS) return;
 	int b_steps = gpu_config_global->B / gpu_config_block->block_B / nb;
-	int b_index = tid / (256 / nb);
+	int b_index = tid / (NUM_THREADS / nb);
 	int b_start = gpu_config_block->block_B * (b_index) * b_steps;
 
-	int k_index = tid / (256 / (nb * nk)) % (nk);
+	int k_index = tid / (NUM_THREADS / (nb * nk)) % (nk);
 	int k_steps = gpu_config_global->K / gpu_config_block->block_K / nk;
 	int k_start = gpu_config_block->block_K * k_index * k_steps;
 
-	int w_index = tid / (256 / (nb * nk * nw)) % nw;
+	int w_index = tid / (NUM_THREADS / (nb * nk * nw)) % nw;
 	int w_steps = gpu_config_global->W / gpu_config_block->block_W / nw;
 	int w_start = gpu_config_block->block_W * w_index * w_steps;
 
-	int h_index = tid / (256 / (nb * nk * nw * nh)) % nh;
+	int h_index = tid / (NUM_THREADS / (nb * nk * nw * nh)) % nh;
 	int h_steps = gpu_config_global->H / gpu_config_block->block_H / nh;
 	int h_start = gpu_config_block->block_H * h_index * h_steps;
 
